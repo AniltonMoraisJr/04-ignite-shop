@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@radix-ui/themes": "^3.0.4",
     "@stitches/react": "^1.2.8",
     "keen-slider": "^6.8.6",
     "next": "14.2.3",
@@ -17,10 +18,11 @@
     "stripe": "^15.6.0"
   },
   "devDependencies": {
+    "@rocketseat/eslint-config": "^2.2.2",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "eslint": "^8",
+    "eslint": "^8.57.0",
     "eslint-config-next": "14.2.3",
     "typescript": "^5"
   }
