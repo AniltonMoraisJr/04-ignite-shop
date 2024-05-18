@@ -5,10 +5,11 @@ import {
   ProductDetails,
 } from '@/styles/pages/product'
 import { Skeleton } from '@radix-ui/themes'
+import axios from 'axios'
 import { GetStaticPaths, GetStaticProps } from 'next'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import React from 'react'
+import React, { useState } from 'react'
 import Stripe from 'stripe'
 
 // import { Container } from './styles';
@@ -19,10 +20,28 @@ interface IProductDetails {
   imageUrl: string
   price: number
   description: string
+  defaultPriceId: string
 }
 
 const Product: React.FC<{ product: IProductDetails }> = ({ product }) => {
   const { isFallback } = useRouter()
+  const [isCreatingCheckoutSession, setIsCreatingCheckoutSession] =
+    useState(false)
+  async function handleBuyProduct() {
+    try {
+      setIsCreatingCheckoutSession(true)
+      const response = await axios.post('/api/checkout', {
+        priceId: product.defaultPriceId,
+      })
+      const { checkoutUrl } = response.data
+
+      window.location.href = checkoutUrl
+    } catch (error) {
+      setIsCreatingCheckoutSession(false)
+      console.error(error)
+      alert('Falha ao redirecionar ao checkout')
+    }
+  }
   if (isFallback) {
     return (
       <ProductContainer>
@@ -55,7 +74,9 @@ const Product: React.FC<{ product: IProductDetails }> = ({ product }) => {
         <h1>{product.name}</h1>
         <span>{product.price}</span>
         <p>{product.description}</p>
-        <button>Comprar agora</button>
+        <button disabled={isCreatingCheckoutSession} onClick={handleBuyProduct}>
+          Comprar agora
+        </button>
       </ProductDetails>
     </ProductContainer>
   )
@@ -91,6 +112,7 @@ export const getStaticProps: GetStaticProps<any, { id: string }> = async ({
           currency: 'BRL',
         }).format(price.unit_amount ? price.unit_amount / 100 : 0),
         description: product.description,
+        defaultPriceId: price.id,
       },
     },
     revalidate: 60 * 60 * 1, // 1 hour
